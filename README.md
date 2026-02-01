@@ -220,20 +220,3 @@ Planned extensions include:
 * **Cost optimization** using Snowflake clustering and pruning
 
 ---
-
-
-## 📂 Repository Structure (Recommended)
-
-```
-/adf/
-  ├── pipelines/
-  ├── dataflows/
-/sql/
-  ├── staging.sql
-  ├── dimensions.sql
-  ├── fact.sql
-/docs/
-  ├── architecture.png
-  ├── data_model.png
-README.md
-```
