@@ -62,9 +62,7 @@ Snowflake Analytics & BI Consumption
 
 ## 📊 Dataset Description
 
-**Source:** Seattle Open Data Portal
-
-👉 https://data.seattle.gov/City-Administration/Seattle-Pet-Licenses/jguv-t9rb/data_preview 
+**Source:** [Seattle Open Data Portal](https://data.seattle.gov/City-Administration/Seattle-Pet-Licenses/jguv-t9rb/data_preview)
 
 **Domain:** Civic pet licensing records
 
