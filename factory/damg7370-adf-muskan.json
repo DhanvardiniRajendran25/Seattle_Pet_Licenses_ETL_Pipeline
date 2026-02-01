@@ -1,0 +1,9 @@
+{
+	"name": "damg7370-adf-muskan",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "8bd9b059-1e13-404c-a2d9-7e66c21c363c",
+		"tenantId": "a8eec281-aaa3-4dae-ac9b-9a398b9215e7"
+	}
+}

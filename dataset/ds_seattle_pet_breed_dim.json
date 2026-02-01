@@ -1,0 +1,64 @@
+{
+	"name": "ds_seattle_pet_breed_dim",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "Snowflake1",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SnowflakeV2Table",
+		"schema": [
+			{
+				"name": "BREED_SK",
+				"type": "NUMBER",
+				"precision": 10,
+				"scale": 0
+			},
+			{
+				"name": "START_DT",
+				"type": "DATE"
+			},
+			{
+				"name": "END_DT",
+				"type": "DATE"
+			},
+			{
+				"name": "IS_CURRENT",
+				"type": "NUMBER",
+				"precision": 1,
+				"scale": 0
+			},
+			{
+				"name": "SPECIES_NAME",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "BREED_DK",
+				"type": "NUMBER",
+				"precision": 10,
+				"scale": 0
+			},
+			{
+				"name": "PRIMARY_BREED_NAME",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "SECONDARY_BREED_NAME",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "DI_JOB_ID",
+				"type": "VARCHAR"
+			},
+			{
+				"name": "DI_LOAD_DT",
+				"type": "DATE"
+			}
+		],
+		"typeProperties": {
+			"schema": "SEATTLE_PET_SCHEMA",
+			"table": "BREED_DIM"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

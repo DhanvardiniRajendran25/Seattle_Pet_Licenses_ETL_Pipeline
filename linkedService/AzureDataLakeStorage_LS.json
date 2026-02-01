@@ -1,0 +1,12 @@
+{
+	"name": "AzureDataLakeStorage_LS",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "ADF to access my storage containers",
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://damg7370muskan.dfs.core.windows.net/"
+		}
+	}
+}

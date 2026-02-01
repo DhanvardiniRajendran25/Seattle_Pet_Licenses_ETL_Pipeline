@@ -1,0 +1,258 @@
+{
+	"name": "PL_TSV_2_Parquet",
+	"properties": {
+		"activities": [
+			{
+				"name": "TSV_2_Parquet",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:30:00",
+					"retry": 1,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DelimitedText2",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Parquet2",
+						"type": "DatasetReference",
+						"parameters": {
+							"Filename": {
+								"value": "@variables('my_parquet_file')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Parquet_2_Snowflake",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "TSV_2_Parquet",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.00:30:00",
+					"retry": 1,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"additionalColumns": [
+							{
+								"name": "JOB_ID",
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "LOAD_DT",
+								"value": {
+									"value": "@utcNow()",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"sink": {
+						"type": "SnowflakeV2Sink",
+						"preCopyScript": "TRUNCATE TABLE\nSTAGE_SCHEMA.PET_LICENSE_STAGE;",
+						"importSettings": {
+							"type": "SnowflakeImportCopyCommand"
+						}
+					},
+					"enableStaging": true,
+					"stagingSettings": {
+						"linkedServiceName": {
+							"referenceName": "AzureBlobStorage1",
+							"type": "LinkedServiceReference"
+						}
+					},
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "License_Issue_Date",
+									"type": "String"
+								},
+								"sink": {
+									"name": "LICENSE_ISSUE_DATE",
+									"type": "DateTime"
+								}
+							},
+							{
+								"source": {
+									"name": "License_Number",
+									"type": "String"
+								},
+								"sink": {
+									"name": "LICENSE_NUMBER",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Animal_Name",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ANIMAL_NAME",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Species",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SPECIES",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Primary_Breed",
+									"type": "String"
+								},
+								"sink": {
+									"name": "PRIMARY_BREED",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "Secondary_Breed",
+									"type": "String"
+								},
+								"sink": {
+									"name": "SECONDARY_BREED",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "ZIP_Code",
+									"type": "String"
+								},
+								"sink": {
+									"name": "ZIP_CODE",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "JOB_ID",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DI_JOB_ID",
+									"type": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "LOAD_DT",
+									"type": "String"
+								},
+								"sink": {
+									"name": "DI_LOAD_DT",
+									"type": "DateTime"
+								}
+							}
+						]
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "Parquet3",
+						"type": "DatasetReference",
+						"parameters": {
+							"Filename": {
+								"value": "@variables('my_parquet_file')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "SnowflakeTable1",
+						"type": "DatasetReference",
+						"parameters": {
+							"StageName": "STAGE_SCHEMA",
+							"TableName": "PET_LICENSE_STAGE"
+						}
+					}
+				]
+			}
+		],
+		"variables": {
+			"my_parquet_file": {
+				"type": "String",
+				"defaultValue": "pet_file_data.parquet"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-02-07T03:53:46Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

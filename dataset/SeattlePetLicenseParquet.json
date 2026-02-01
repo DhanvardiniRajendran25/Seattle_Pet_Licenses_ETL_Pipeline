@@ -1,0 +1,49 @@
+{
+	"name": "SeattlePetLicenseParquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage_LS",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "silver"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "License_Issue_Date",
+				"type": "UTF8"
+			},
+			{
+				"name": "License_Number",
+				"type": "UTF8"
+			},
+			{
+				"name": "Animals_Name",
+				"type": "UTF8"
+			},
+			{
+				"name": "Species",
+				"type": "UTF8"
+			},
+			{
+				"name": "Primary_Breed",
+				"type": "UTF8"
+			},
+			{
+				"name": "Secondary_Breed",
+				"type": "UTF8"
+			},
+			{
+				"name": "ZIP_Code",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

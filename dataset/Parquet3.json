@@ -1,0 +1,59 @@
+{
+	"name": "Parquet3",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorage_LS",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"Filename": {
+				"type": "string",
+				"defaultValue": "pet_file_data.parquet"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().Filename",
+					"type": "Expression"
+				},
+				"fileSystem": "silver"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": [
+			{
+				"name": "License_Issue_Date",
+				"type": "UTF8"
+			},
+			{
+				"name": "License_Number",
+				"type": "UTF8"
+			},
+			{
+				"name": "Animals_Name",
+				"type": "UTF8"
+			},
+			{
+				"name": "Species",
+				"type": "UTF8"
+			},
+			{
+				"name": "Primary_Breed",
+				"type": "UTF8"
+			},
+			{
+				"name": "Secondary_Breed",
+				"type": "UTF8"
+			},
+			{
+				"name": "ZIP_Code",
+				"type": "UTF8"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
