@@ -112,6 +112,105 @@ Surrogate keys ensure:
 
 ---
 
+## 📋 Dataset Schema & Column Details
+
+**Dataset:** Seattle Pet Licenses
+**Source:** City of Seattle Open Data Portal
+**Granularity:** One record per licensed pet
+
+| Column Name          | Data Type (Source) | Data Type (Post-ETL) | Description                                                       | Example Values                  | Data Quality Notes                                           |
+| -------------------- | ------------------ | -------------------- | ----------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------ |
+| `LICENSE_NUMBER`     | String             | VARCHAR              | Unique identifier assigned to each pet license issued by the city | `519748`, `722695`              | Some duplicates exist due to renewals; handled at fact grain |
+| `ANIMALS_NAME`       | String             | VARCHAR              | Name of the licensed pet                                          | `Zen`, `Misty`, `Bella`         | Optional field; can be NULL                                  |
+| `SPECIES`            | String             | VARCHAR → FK         | Species of the animal                                             | `Cat`, `Dog`, `Goat`, `Pig`     | Missing values handled using default dimension member        |
+| `PRIMARY_BREED`      | String             | VARCHAR → FK         | Primary breed of the animal                                       | `Domestic Longhair`, `Siberian` | Inconsistent casing and spelling normalized                  |
+| `SECONDARY_BREED`    | String             | VARCHAR → FK         | Secondary breed if applicable                                     | `Mix`, `NULL`                   | Frequently NULL; retained for completeness                   |
+| `LICENSE_ISSUE_DATE` | String             | DATE                 | Date the license was issued                                       | `2015-12-18`, `2020-06-14`      | Originally stored as text; parsed and validated              |
+| `ZIP_CODE`           | String             | VARCHAR → FK         | ZIP code of the pet owner                                         | `98117`, `98115`                | Some invalid ZIPs filtered or defaulted                      |
+| `CREATED_AT`         | Timestamp          | TIMESTAMP            | Record ingestion timestamp (ETL generated)                        | `2025-03-13 18:41:22`           | Added for lineage and auditing                               |
+| `UPDATED_AT`         | Timestamp          | TIMESTAMP            | Last update timestamp                                             | `2025-03-13 18:41:22`           | Used for incremental processing                              |
+
+---
+
+## 🧱 Dimensional Modeling Breakdown
+
+### Fact Table: `PET_LICENSE_FACT`
+
+| Column             | Description                  |
+| ------------------ | ---------------------------- |
+| `PET_LICENSE_SK`   | Surrogate key for fact table |
+| `LICENSE_NUMBER`   | Business identifier          |
+| `SPECIES_SK`       | Foreign key to SPECIES_DIM   |
+| `PRIMARY_BREED_SK` | Foreign key to BREED_DIM     |
+| `DATE_SK`          | Foreign key to DATE_DIM      |
+| `ZIP_SK`           | Foreign key to ZIP_DIM       |
+
+**Fact Grain:**
+➡️ One row per **pet license issuance event**
+
+---
+
+### Dimension Table: `SPECIES_DIM`
+
+| Column         | Description                  |
+| -------------- | ---------------------------- |
+| `SPECIES_SK`   | Auto-generated surrogate key |
+| `SPECIES_NAME` | Normalized species name      |
+| `UPDATED_BY`   | ETL process identifier       |
+
+**Special Handling:**
+
+* Missing species mapped to a default `"Missing"` record
+* Supports late-arriving values via MERGE logic
+
+---
+
+### Dimension Table: `BREED_DIM`
+
+| Column       | Description           |
+| ------------ | --------------------- |
+| `BREED_SK`   | Surrogate key         |
+| `BREED_NAME` | Normalized breed name |
+| `BREED_TYPE` | Primary / Secondary   |
+
+---
+
+### Dimension Table: `DATE_DIM`
+
+| Column       | Description   |
+| ------------ | ------------- |
+| `DATE_SK`    | Surrogate key |
+| `DATE_VALUE` | Calendar date |
+| `YEAR`       | Year          |
+| `MONTH`      | Month         |
+| `QUARTER`    | Quarter       |
+
+---
+
+### Dimension Table: `ZIP_DIM`
+
+| Column     | Description   |
+| ---------- | ------------- |
+| `ZIP_SK`   | Surrogate key |
+| `ZIP_CODE` | ZIP code      |
+| `CITY`     | City name     |
+| `STATE`    | State         |
+
+---
+
+## ⚠️ Key Data Quality Challenges Addressed
+
+| Issue                          | Resolution Strategy               |
+| ------------------------------ | --------------------------------- |
+| Missing species values         | Default surrogate key (`Missing`) |
+| String-based dates             | Parsed into DATE using Snowflake  |
+| Duplicate licenses             | Fact grain carefully defined      |
+| Inconsistent casing            | Uppercasing and trimming          |
+| Late-arriving dimension values | MERGE-based inserts               |
+
+
+---
+
 ## 🔄 Medallion Architecture Implementation
 
 ### 🥉 Bronze Layer — Raw Ingestion
